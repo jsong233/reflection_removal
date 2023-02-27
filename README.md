@@ -101,12 +101,12 @@ So far most of the previous works take the input digital image as the direct add
 The physical formation of the ghosting model $\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \mathbf{k}$ is shown in Figure \ref{fig:ghost}, where intuitively, the input image we get is the "addition" of $\mathbf{T}$, $\mathbf{R}\_1$ and $\mathbf{R}\_2$ optically, where $\mathbf{R}\_2$ is a shifted and attenuated version of the reflection $\mathbf{R}\_1$. However, the images we process and recover are digital images, in other words, the physical model $\mathbf{Y} = \mathbf{T} + \mathbf{R}\_1 + \mathbf{R}\_2$ does not imply $g(\mathbf{Y}) = g(\mathbf{T}) + g(\mathbf{R}\_1) + g(\mathbf{R}\_2)$ where $g$ transforms them into digital images. Moreover, there are many other situations where the physical model $\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \mathbf{k}$ does not hold, as shown in Figure \ref{fig:otherMode}, the pixel-wise addition would make the mixture image lighter than the two layers it consists of. While the reflections in the above two images act as "shadows" which instead dim the transmission layer, it is because the transmitted objects will not glow in this case.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/book.jpg" width="400">
+  <source media="(prefers-color-scheme: dark)" srcset="./images/book.jpg" width="300">
   <img alt="Photos with reflections." src="./images/book.jpg">
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/portrait.png" width="400">
+  <source media="(prefers-color-scheme: dark)" srcset="./images/portrait.png" width="300">
   <img alt="Photos with reflections." src="./images/portrait.png">
 </picture>
 
@@ -123,17 +123,17 @@ where $\delta \in (0,1)$ indicates the opacity of the transmission layer $\mathb
 As shown in the following figure, The image on the left side is the input image, we combine the new model $\mathbf{Y} = 0.3\mathbf{T} + 0.7(\mathbf{R} \otimes \mathbf{k})$  with the original methods to get the recovered transmission layer $\T$ in the middle and the recovered reflection layer $\R$ on the right. We notice that sometimes the original algorithm could successfully recover the reflection layer $\mathbf{R}$, but the transmission layer $\mathbf{T}$ is still left with the shadow of $\mathbf{R}$, which means the original regularization terms are good at detecting the two layers but still unable to achieve clean separation. We therefore propose a new regularization term to also minimize the correlation between $\mathbf{T}$ and $\mathbf{R}$.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/book.jpg" width="300">
+  <source media="(prefers-color-scheme: dark)" srcset="./images/book.jpg" width="240">
   <img alt="The input image." src="./images/book.jpg">
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/initT_d_book.jpg" width="300">
+  <source media="(prefers-color-scheme: dark)" srcset="./images/initT_d_book.jpg" width="240">
   <img alt="we combine the new model with the original methods to get the recovered transmission layer" src="./images/initT_d_book.jpg">
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/initR_d_book.jpg" width="300">
+  <source media="(prefers-color-scheme: dark)" srcset="./images/initR_d_book.jpg" width="240">
   <img alt="we combine the new model with the original methods to get the recovered reflection layer$$" src="./images/initR_d_book.jpg">
 </picture>
 
