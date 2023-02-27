@@ -187,12 +187,12 @@ As for initialization, let $\mathbf{T} = \mathbf{Y}$, $\delta = 0.5$, set all th
 We test our new algorithm on both synthetic images and real images. In the following diagrams, the figure on the left is the input image, the figure in the middle is the recovered result of the original algorithm, and the figure on the right is the recovered result of our new algorithm. They both show that we obtain much better results when processing images with simple transmission layer. 
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/syn_result.png" width="600">
+  <source media="(prefers-color-scheme: dark)" srcset="./images/syn_result.png" width="800">
   <img alt="The input image" src="./images/syn_result.png">
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/book_result.png" width="600">
+  <source media="(prefers-color-scheme: dark)" srcset="./images/book_result.png" width="800">
   <img alt="The input image" src="./images/book_result.png">
 </picture>
 
@@ -202,7 +202,7 @@ We also find that when dealing with more complicated $\mathbf{T}$, the new regul
 
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/lake_result.png" width="600">
+  <source media="(prefers-color-scheme: dark)" srcset="./images/lake_result.png" width="800">
   <img alt="The input image" src="./images/lake_result.png">
 </picture>
 
