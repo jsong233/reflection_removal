@@ -170,8 +170,7 @@ Now we let $\mathbf{d}\_k$ be the maximum point of $\mathcal{R}\_{E\_{\mathbf{Y}
 We set $\delta = 0.3 \text{ or } 0.5$, utilizing the new model and the new regularization term, our optimization problem becomes:
 
 
-$$\min_{\mathbf{T},\mathbf{R}} \quad \frac{1}{2}\|\mathbf{Y} - \delta\mathbf{T} - (1-\delta)(\mathbf{R} \otimes \mathbf{k})\|\_F^2 + \lambda\sum\_i\|\mathbf{A}\odot(f\_i \otimes \mathbf{T})\|_1
-+ \beta\sum_i\|(1-\mathbf{A})\odot(f_i\otimes\mathbf{R})\|\_1 + \gamma\|\frac{\mathbf{R}\odot\mathbf{T}}{\|\mathbf{R}\|\_F\|\mathbf{T}\|\_F}\|\_1$$
+$$\min_{\mathbf{T},\mathbf{R}} \quad \frac{1}{2}\|\mathbf{Y} - \delta\mathbf{T} - (1-\delta)(\mathbf{R} \otimes \mathbf{k})\|\_F^2 + \lambda\sum\_i\|\mathbf{A}\odot(f\_i \otimes \mathbf{T})\|\_1 + \beta\sum_i\|(1-\mathbf{A})\odot(f_i\otimes\mathbf{R})\|\_1 + \gamma\|\frac{\mathbf{R}\odot\mathbf{T}}{\|\mathbf{R}\|\_F\|\mathbf{T}\|\_F}\|\_1$$
 
 
 Implementing alternating minimization, we split this problem into two subproblems as follows:
