@@ -102,12 +102,12 @@ So far most of the previous works take the input digital image as the direct add
 The physical formation of the ghosting model $\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \mathbf{k}$ is shown in Figure \ref{fig:ghost}, where intuitively, the input image we get is the "addition" of $\mathbf{T}$, $\mathbf{R}\_1$ and $\mathbf{R}\_2$ optically, where $\mathbf{R}\_2$ is a shifted and attenuated version of the reflection $\mathbf{R}\_1$. However, the images we process and recover are digital images, in other words, the physical model $\mathbf{Y} = \mathbf{T} + \mathbf{R}\_1 + \mathbf{R}\_2$ does not imply $g(\mathbf{Y}) = g(\mathbf{T}) + g(\mathbf{R}\_1) + g(\mathbf{R}\_2)$ where $g$ transforms them into digital images. Moreover, there are many other situations where the physical model $\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \mathbf{k}$ does not hold, as shown in Figure \ref{fig:otherMode}, the pixel-wise addition would make the mixture image lighter than the two layers it consists of. While the reflections in the above two images act as "shadows" which instead dim the transmission layer, it is because the transmitted objects will not glow in this case.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/book.jpg" width="300">
+  <source media="(prefers-color-scheme: dark)" srcset="./images/book.jpg" width="200">
   <img alt="Photos with reflections." src="./images/book.jpg">
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/portrait.png" width="300">
+  <source media="(prefers-color-scheme: dark)" srcset="./images/portrait.png" width="200">
   <img alt="Photos with reflections." src="./images/portrait.png">
 </picture>
 
@@ -186,50 +186,23 @@ As for initialization, let $\mathbf{T} = \mathbf{Y}$, $\delta = 0.5$, set all th
 
 We test our new algorithm on both synthetic images and real images. In the following diagrams, the figure on the left is the input image, the figure in the middle is the recovered result of the original algorithm, and the figure on the right is the recovered result of our new algorithm. They both show that we obtain much better results when processing images with simple transmission layer. 
 
-On synthetic images:
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/shadowSyn.png" width="240">
-  <img alt="The input image" src="./images/shadowSyn.png">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/T_shadowSyn.png" width="240">
-  <img alt="The recorvered transimission layer by the original algorithm" src="./images/T_shadowSyn.png">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/T_r_shadowSyn.png" width="240">
-  <img alt="The recorvered transimission layer by our new algorithm" src="./images/T_r_shadowSyn.png">
+  <source media="(prefers-color-scheme: dark)" srcset="./images/syn_result.png" width="600">
+  <img alt="The input image" src="./images/syn_result.png">
 </picture>
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/book_result.png" width="600">
+  <img alt="The input image" src="./images/book_result.png">
+</picture>
 
-On real images:
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/book.jpg" width="240">
-  <img alt="The input image" src="./images/book.jpg">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/T_book.jpg" width="240">
-  <img alt="The recorvered transimission layer by the original algorithm" src="./images/T_book.jpg">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/T_r_book.jpg" width="240">
-  <img alt="The recorvered transimission layer by our new algorithm" src="./images/T_r_book.jpg">
-</picture>
 
 
 We also find that when dealing with more complicated $\mathbf{T}$, the new regularization term would sacrifice the details in the transmission layer in order to achieve "clear" separation of the two layers, as shown in the following diagram.
 
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/Lake.jpg" width="240">
-  <img alt="The input image" src="./images/Lake.jpg">
+  <source media="(prefers-color-scheme: dark)" srcset="./images/lake_result.png" width="600">
+  <img alt="The input image" src="./images/lake_result.png">
 </picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/lake_deghost.jpg" width="240">
-  <img alt="The recorvered transimission layer by the original algorithm" src="./images/lake_deghost.jpg">
-</picture>
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/T_r_Lake.jpg" width="240">
-  <img alt="The recorvered transimission layer by our new algorithm" src="./images/T_r_Lake.jpg">
-</picture>
-
 
