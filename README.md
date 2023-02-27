@@ -43,7 +43,7 @@ $$\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \mathbf{k}$$
 
 and combine it with a patch-based GMM (Gaussian Mixture Model) prior. Here $\mathbf{k}$ is the ghosting kernel consists of the shifting parameter $\mathbf{d}\_k$ and the attenuation parameter $c\_k$, in other words, 
 
-$\mathbf{R} \otimes \mathbf{k} (\mathbf{x}) = \mathbf{R}(\mathbf{x}) + c_k\mathbf{R}(\mathbf{x} - \mathbf{d}\_k)$$
+$$\mathbf{R} \otimes \mathbf{k} (\mathbf{x}) = \mathbf{R}(\mathbf{x}) + c_k\mathbf{R}(\mathbf{x} - \mathbf{d}\_k)$$
 
 where $\mathbf{x}$ is a two dimensional vector representing a single pixel. 
 
@@ -51,5 +51,89 @@ This model, however, fails to process images with repetitive pattern in the tran
 
 Motivated by *Y. Shih* and *Y. Huang et al.*, this paper aims to improve the reflection removal performance based on their ghosting model by the following three ways: polish the estimation of the ghosting kernel $\mathbf{k}$, design a more robust model than $\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \mathbf{k}$, and impose stronger regularization terms.
 
+
+# Main Idea
+
+The original optimization problem \cite{removing} is formed as follows:
+
+$$\min_{\mathbf{T},\mathbf{R}} \quad  \frac{1}{2}\|\mathbf{Y} - \mathbf{T} - \mathbf{R} \otimes \mathbf{k}\|\_F^2 + \lambda\sum\_i\|\mathbf{A} \odot (f\_i \otimes \mathbf{T})\|\_1 + \beta\sum\_i\|(1 - \mathbf{A}) \odot (f\_i \otimes \mathbf{R})\|\_1,$$
+
+where $\{f_i\}\_{i = 1}^L$ is the filter bank of a wavelet transform, $\A$ is the weighting matrix encoding the information distinguishing $\mathbf{T}$ and $\mathbf{R}$ and $\odot$ represents pixel-wise multiplication. They use split-Bregman method to solve this optimization problem after estimating ghosting kernel $\mathbf{k}$ and the weighting matrix $\mathbf{A}$. More details could be found in *Removing Reflection From a Single Image With Ghosting Effect* (*Y. Huang et al.* (2019)).
+
+Our goal is to obtain better estimation of $\mathbf{k}$, choose better image blending mode $f$ as well as better regularization terms $\Gamma(\mathbf{T},\mathbf{R})$ in the following generalized model.
+
+$$\min_{\mathbf{T},\mathbf{R}} \quad  \frac{1}{2}\|\mathbf{Y} - f(\mathbf{T}, \mathbf{R} \otimes \mathbf{k})\|\_F^2 + \Gamma(\mathbf{T}, \mathbf{R}).$$
+
+
+The rest of this chapter will describe how we achieve our goals mentioned above based on the methods proposed by *Y. Shih* and *Y. Huang et al.*.
+
+
+## Kernel Estimation
+
+Given an input image, the very first step is to estimate the ghosting kernel $\mathbf{k} = (\mathbf{d}\_k, c_k)$. Only by obtaining the right ghosting kernel can we separate the two layers correctly since the kernel $\k$ is the key to detect the reflection layer $\mathbf{R}$. However, the algorithm used by *Y. Shih* and *Y. Huang et al.* can be problematic in many situations, therefore, following their framework, we improve some details and give a more accurate estimation of $\k$.
+
+
+The original method is to first estimate $\mathbf{d}\_k$ then estimate $c\_k$. To estimate $\mathbf{d}\_k$, they search for the vector that maximizes the autocorrelation map of the edge map of $\mathbf{Y}$, based on the idea that by shifting the input image $\mathbf{d}\_k$, it would overlap itself to the full extent. If we denote $E_{\mathbf{Y}}$ as the edge map of $\mathbf{Y}$, $\mathcal{R}\_s$ as the autocorrelation function of signal $s$, we have:
+
+$$\mathbf{d}_k = \arg\max_{\mathbf{d}} \mathcal{R}\_{E_{\mathbf{Y}}}(\mathbf{d}).$$
+
+To estimate $c_k$, they detect all the corners of the input image, then extract patches around these corners and shift them $\d_k$ to get pairs of patches, finally compute the weighted average of all the relative attenuation between those patch pairs. Let $\p_1^j$ denote the $p \times p$ patch around the $j^{\text{th}}$ corner point, $\p_2^j(\x) = \p_1^j(\x + \d_k)$ is another $p \times p$ patch obtained by shifting $\p_1^j$ the distance $\d_k$. If we denote $\text{attn}_j$ as the relative attenuation between the patch pair $\p_1, \p_2$, $w_j$ as the weight to decide how much should this attenuation of the $j^{\text{th}}$ corner contribute to the final attenuation factor $c_k$, we have:
+$$c_k = \frac{\sum_jw_j\text{attn}_j}{\sum_jw_j}.$$
+
+When the transmission layer $\T$ has strong repetitive pattern, however, this algorithm would probably take $\d_k$ from the transmission layer $\T$ and result in incorrect $c_k$. It is important to mention that, the weighting matrix $\A$ \cite{removing} works only when we get the right $\k$. Suppose we get the right estimation of $\k$, and the patterns in $\T$ and $\R$ share the same $\d_k$, the algorithm could tell whether a pixel belongs to $\T$ or $\R$ with the help of $\A$, but it could not help us find the right $\k$ in the very beginning. To solve this, we combine the estimation of $\d_k$ and $c_k$. We hope that the wrong $\d_k$ derived from the repetitive pattern in $\T$ would result in $c_k \approx 1$, so that among the local maximum points of $\mathcal{R}\_{E_{\mathbf{Y}}}(\d)$ we could discard those $\d_k$ whose corresponding $c_k$ is close to 1. Therefore, we are left to improve the estimation of $c_k$ so that the wrong $\d_k$ derived from the repetitive pattern in $\T$ would result in $c_k \approx 1$.
+
+
+
+\section{New Model}
+
+So far most of the previous works take the input digital image as the direct addition of several digital images. When implementing the primary model $\Y = \T + \R$, for example, "$+$" is used as the pixel-wise addition. 
+
+\begin{figure}
+  \centering
+  \includegraphics[width = 0.5\textwidth]{figures/ghost.png}
+  \caption{The physical formation of ghosting. Here $\R_2$ is a shifted and attenuated version of the reflection $\R_1$.}
+  \label{fig:ghost}
+\end{figure}
+
+
+The physical formation of the ghosting model $\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \k$ is shown in Figure \ref{fig:ghost}, where intuitively, the input image we get is the "addition" of $\mathbf{T}$, $\mathbf{R}\_1$ and $\mathbf{R}\_2$ optically. However, the images we process and recover are digital images, in other words, the physical model $\mathbf{Y} = \mathbf{T} + \mathbf{R}\_1 + \mathbf{R}\_2$ does not imply $g(\mathbf{Y}) = g(\mathbf{T}) + g(\mathbf{R}\_1) + g(\mathbf{R}\_2)$ where $g$ transforms them into digital images. Moreover, there are many other situations where the physical model $\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \mathbf{k}$ does not hold, as shown in Figure \ref{fig:otherMode}.
+
+
+\begin{figure}
+\begin{minipage}{0.5\textwidth}
+  \centering
+  \includegraphics[height=5cm]{figures/book.jpg}
+\end{minipage}\hfill
+\begin{minipage}{0.5\textwidth}
+  \centering
+  \includegraphics[height=5cm]{figures/portrait.png}
+\end{minipage}\hfill
+\caption{The pixel-wise addition would make the mixture image lighter than the two layers it consists of. While the reflections in the above two images act as "shadows" which instead dim the transmission layer, it is because the transmitted objects will not glow in this case.}
+\label{fig:otherMode}
+\end{figure}
+
+Therefore, we aim to find a new model $\mathbf{Y} = f(\mathbf{T}, \mathbf{R} \otimes \mathbf{k})$ that could cover a wider range of situations. Inspired by the opacity blending mode in Photoshop, we construct a new model as:
+$$\mathbf{Y} = \delta\mathbf{T} + (1 - \delta) (\mathbf{R} \otimes \mathbf{k})$$
+where $\delta \in (0,1)$ indicates the opacity of the transmission layer $\mathbf{T}$.
+
+
+\section{Regularization Term}
+\begin{figure}[H]
+\begin{minipage}{0.33\textwidth}
+  \centering
+  \includegraphics[height=4cm]{figures/book.jpg}
+\end{minipage}\hfill
+\begin{minipage}{0.33\textwidth}
+  \centering
+  \includegraphics[height=4cm]{figures/initT_d_book.jpg}
+\end{minipage}\hfill
+\begin{minipage}{0.33\textwidth}
+  \centering
+  \includegraphics[height=4cm]{figures/initR_d_book.jpg}
+\end{minipage}
+\caption{The image on the left side is the input image, we combine the new model $\mathbf{Y} = 0.3\mathbf{T} + 0.7(\mathbf{R} \otimes \mathbf{k})$  with the original methods to get the recovered transmission layer $\T$ in the middle and the recovered reflection layer $\mathbf{R}$ on the right.}
+\label{fig:corr}
+\end{figure}
+As shown in Figure \ref{fig:corr}, we notice that sometimes the original algorithm could successfully recover the reflection layer $\mathbf{R}$, but the transmission layer $\mathbf{T}$ is still left with the shadow of $\mathbf{R}$, which means the original regularization terms are good at detecting the two layers but still unable to achieve clean separation. We therefore propose a new regularization term to also minimize the correlation between $\mathbf{T}$ and $\mathbf{R}$.
 
 
