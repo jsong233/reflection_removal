@@ -196,7 +196,7 @@ We test our new algorithm on both synthetic images and real images. In the follo
   <img alt="The recorvered transimission layer by the original algorithm" src="./images/T_shadowSyn.png">
 </picture>
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/T_r_shadowSyn.png.png" width="240">
+  <source media="(prefers-color-scheme: dark)" srcset="./images/T_r_shadowSyn.png" width="240">
   <img alt="The recorvered transimission layer by our new algorithm" src="./images/T_r_shadowSyn.png">
 </picture>
 
