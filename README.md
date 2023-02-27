@@ -196,7 +196,7 @@ We test our new algorithm on both synthetic images and real images. In the follo
   <img alt="The recorvered transimission layer by the original algorithm" src="./images/T_shadowSyn.png">
 </picture>
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/T_r_shadowSyn.png.png" width="240">
+  <source media="(prefers-color-scheme: dark)" srcset="./images/T_r_shadowSyn.png" width="240">
   <img alt="The recorvered transimission layer by our new algorithm" src="./images/T_r_shadowSyn.png">
 </picture>
 
@@ -211,7 +211,7 @@ We test our new algorithm on both synthetic images and real images. In the follo
 </picture>
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./images/T_r_book.jpg" width="240">
-  <img alt="The recorvered transimission layer by our new algorithm" src="./images/T_r_book.jpg.png">
+  <img alt="The recorvered transimission layer by our new algorithm" src="./images/T_r_book.jpg">
 </picture>
 
 
@@ -228,7 +228,7 @@ We also find that when dealing with more complicated $\mathbf{T}$, the new regul
 </picture>
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./images/T_r_Lake.jpg" width="240">
-  <img alt="The recorvered transimission layer by our new algorithm" src="./images/T_r_Lake.jpg.png">
+  <img alt="The recorvered transimission layer by our new algorithm" src="./images/T_r_Lake.jpg">
 </picture>
 
 
