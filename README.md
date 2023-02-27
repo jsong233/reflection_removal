@@ -47,11 +47,6 @@ $$\mathbf{R} \otimes \mathbf{k} (\mathbf{x}) = \mathbf{R}(\mathbf{x}) + c_k\math
 
 where $\mathbf{x}$ is a two dimensional vector representing a single pixel. 
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./images/ghost.png" width="400">
-  <img alt="Illustration of the ghosting model." src="./images/ghost.png">
-</picture>
-
 This model, however, fails to process images with repetitive pattern in the transmission layer. Therefore, *Y. Huang et al.* (2019) replaced the GMM prior by a more detailed prior containing information about the differences of the repetitive pattern between $\mathbf{T}$ and $\mathbf{R}$ so that the algorithm could tell to which layer does a certain pixel belong. 
 
 Motivated by *Y. Shih* and *Y. Huang et al.*, this paper aims to improve the reflection removal performance based on their ghosting model by the following three ways: polish the estimation of the ghosting kernel $\mathbf{k}$, design a more robust model than $\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \mathbf{k}$, and impose stronger regularization terms.
@@ -82,48 +77,45 @@ The original method is to first estimate $\mathbf{d}\_k$ then estimate $c\_k$. T
 
 $$\mathbf{d}_k = \arg\max_{\mathbf{d}} \mathcal{R}\_{E_{\mathbf{Y}}}(\mathbf{d}).$$
 
-To estimate $c_k$, they detect all the corners of the input image, then extract patches around these corners and shift them $\mathbf{d}_k$ to get pairs of patches, finally compute the weighted average of all the relative attenuation between those patch pairs. Let $\mathbf{p}_1^j$ denote the $p \times p$ patch around the $j$-th corner point, $\mathbf{p}_2^j(\mathbf{x}) = \mathbf{p}_1^j(\mathbf{x} + \mathbf{d}_k)$ is another $p \times p$ patch obtained by shifting $\mathbf{p}_1^j$ the distance $\mathbf{d}_k$. If we denote $\text{attn}_j$ as the relative attenuation between the patch pair $\mathbf{p}_1, \mathbf{p}_2$, $w_j$ as the weight to decide how much should this attenuation of the $j$-th corner contribute to the final attenuation factor $c_k$, we have:
+To estimate $c_k$, they detect all the corners of the input image, then extract patches around these corners and shift them $\mathbf{d}\_k$ to get pairs of patches, finally compute the weighted average of all the relative attenuation between those patch pairs. Let $\mathbf{p}\_1^j$ denote the $p \times p$ patch around the $j$-th corner point, $\mathbf{p}\_2^j(\mathbf{x}) = \mathbf{p}\_1^j(\mathbf{x} + \mathbf{d}\_k)$ is another $p \times p$ patch obtained by shifting $\mathbf{p}\_1^j$ the distance $\mathbf{d}\_k$. If we denote $\text{attn}\_j$ as the relative attenuation between the patch pair $\mathbf{p}\_1, \mathbf{p}\_2$, $w_j$ as the weight to decide how much should this attenuation of the $j$-th corner contribute to the final attenuation factor $c_k$, we have:
 
-$$c_k = \frac{\sum_jw_j\text{attn}_j}{\sum_jw_j}.$$
+$$c_k = \frac{\sum_jw_j\text{attn}\_j}{\sum_jw_j}.$$
 
-When the transmission layer $\mathbf{T}$ has strong repetitive pattern, however, this algorithm would probably take $\mathbf{d}_k$ from the transmission layer $\mathbf{T}$ and result in incorrect $c_k$. It is important to mention that, the weighting matrix $\mathbf{A}$ in the original model works only when we get the right $\mathbf{k}$. Suppose we get the right estimation of $\mathbf{k}$, and the patterns in $\mathbf{T}$ and $\mathbf{R}$ share the same $\mathbf{d}_k$, the algorithm could tell whether a pixel belongs to $\mathbf{T}$ or $\mathbf{R}$ with the help of $\mathbf{A}$, but it could not help us find the right $\mathbf{k}$ in the very beginning. To solve this, we combine the estimation of $\mathbf{d}_k$ and $c_k$. We hope that the wrong $\mathbf{d}_k$ derived from the repetitive pattern in $\mathbf{T}$ would result in $c_k \approx 1$, so that among the local maximum points of $\mathcal{R}\_{E_{\mathbf{Y}}}(\mathbf{d})$ we could discard those $\mathbf{d}_k$ whose corresponding $c_k$ is close to 1. Therefore, we are left to improve the estimation of $c_k$ so that the wrong $\mathbf{d}_k$ derived from the repetitive pattern in $\mathbf{T}$ would result in $c_k \approx 1$.
+When the transmission layer $\mathbf{T}$ has strong repetitive pattern, however, this algorithm would probably take $\mathbf{d}\_k$ from the transmission layer $\mathbf{T}$ and result in incorrect $c_k$. It is important to mention that, the weighting matrix $\mathbf{A}$ in the original model works only when we get the right $\mathbf{k}$. Suppose we get the right estimation of $\mathbf{k}$, and the patterns in $\mathbf{T}$ and $\mathbf{R}$ share the same $\mathbf{d}\_k$, the algorithm could tell whether a pixel belongs to $\mathbf{T}$ or $\mathbf{R}$ with the help of $\mathbf{A}$, but it could not help us find the right $\mathbf{k}$ in the very beginning. To solve this, we combine the estimation of $\mathbf{d}\_k$ and $c_k$. We hope that the wrong $\mathbf{d}\_k$ derived from the repetitive pattern in $\mathbf{T}$ would result in $c_k \approx 1$, so that among the local maximum points of $\mathcal{R}\_{E_{\mathbf{Y}}}(\mathbf{d})$ we could discard those $\mathbf{d}\_k$ whose corresponding $c_k$ is close to 1. Therefore, we are left to improve the estimation of $c_k$ so that the wrong $\mathbf{d}\_k$ derived from the repetitive pattern in $\mathbf{T}$ would result in $c_k \approx 1$.
 
 
 
-\section{New Model}
+## New Model
 
 So far most of the previous works take the input digital image as the direct addition of several digital images. When implementing the primary model $\mathbf{Y} = \mathbf{T} + \mathbf{R}$, for example, "$+$" is used as the pixel-wise addition. 
 
-\begin{figure}
-  \centering
-  \includegraphics[width = 0.5\textwidth]{figures/ghost.png}
-  \caption{The physical formation of ghosting. Here $\mathbf{R}_2$ is a shifted and attenuated version of the reflection $\mathbf{R}_1$.}
-  \label{fig:ghost}
-\end{figure}
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/ghost.png" width="400">
+  <img alt="The physical formation of ghosting." src="./images/ghost.png">
+</picture>
 
 
-The physical formation of the ghosting model $\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \mathbf{k}$ is shown in Figure \ref{fig:ghost}, where intuitively, the input image we get is the "addition" of $\mathbf{T}$, $\mathbf{R}\_1$ and $\mathbf{R}\_2$ optically. However, the images we process and recover are digital images, in other words, the physical model $\mathbf{Y} = \mathbf{T} + \mathbf{R}\_1 + \mathbf{R}\_2$ does not imply $g(\mathbf{Y}) = g(\mathbf{T}) + g(\mathbf{R}\_1) + g(\mathbf{R}\_2)$ where $g$ transforms them into digital images. Moreover, there are many other situations where the physical model $\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \mathbf{k}$ does not hold, as shown in Figure \ref{fig:otherMode}.
+The physical formation of the ghosting model $\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \mathbf{k}$ is shown in Figure \ref{fig:ghost}, where intuitively, the input image we get is the "addition" of $\mathbf{T}$, $\mathbf{R}\_1$ and $\mathbf{R}\_2$ optically, where $\mathbf{R}\_2$ is a shifted and attenuated version of the reflection $\mathbf{R}\_1$. However, the images we process and recover are digital images, in other words, the physical model $\mathbf{Y} = \mathbf{T} + \mathbf{R}\_1 + \mathbf{R}\_2$ does not imply $g(\mathbf{Y}) = g(\mathbf{T}) + g(\mathbf{R}\_1) + g(\mathbf{R}\_2)$ where $g$ transforms them into digital images. Moreover, there are many other situations where the physical model $\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \mathbf{k}$ does not hold, as shown in Figure \ref{fig:otherMode}, the pixel-wise addition would make the mixture image lighter than the two layers it consists of. While the reflections in the above two images act as "shadows" which instead dim the transmission layer, it is because the transmitted objects will not glow in this case.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/book.jpg" width="400">
+  <img alt="Photos with reflections." src="./images/book.jpg">
+</picture>
 
-\begin{figure}
-\begin{minipage}{0.5\textwidth}
-  \centering
-  \includegraphics[height=5cm]{figures/book.jpg}
-\end{minipage}\hfill
-\begin{minipage}{0.5\textwidth}
-  \centering
-  \includegraphics[height=5cm]{figures/portrait.png}
-\end{minipage}\hfill
-\caption{The pixel-wise addition would make the mixture image lighter than the two layers it consists of. While the reflections in the above two images act as "shadows" which instead dim the transmission layer, it is because the transmitted objects will not glow in this case.}
-\label{fig:otherMode}
-\end{figure}
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/portrait.png" width="400">
+  <img alt="Photos with reflections." src="./images/portrait.png">
+</picture>
+
 
 Therefore, we aim to find a new model $\mathbf{Y} = f(\mathbf{T}, \mathbf{R} \otimes \mathbf{k})$ that could cover a wider range of situations. Inspired by the opacity blending mode in Photoshop, we construct a new model as:
+
 $$\mathbf{Y} = \delta\mathbf{T} + (1 - \delta) (\mathbf{R} \otimes \mathbf{k})$$
+
 where $\delta \in (0,1)$ indicates the opacity of the transmission layer $\mathbf{T}$.
 
 
-\section{Regularization Term}
+## Regularization Term
 \begin{figure}[H]
 \begin{minipage}{0.33\textwidth}
   \centering
