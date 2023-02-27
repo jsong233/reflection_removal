@@ -1,6 +1,6 @@
 # Project Overview
 
-This was the project I worked on for my undergraduate thesis *Reflection Removal: Improvements of the Ghosting Model* in 2015.
+This was the project I worked on for my undergraduate thesis *Reflection Removal: Improvements of the Ghosting Model* (2015) at Tsinghua University.
 
 We aimed to remove the undesired reflections when taking pictures through transparent glasses. The existing
 “ghosting model” failed to process pictures with repetitive patterns. After I modified the model and proposed a new
@@ -90,7 +90,7 @@ When the transmission layer $\mathbf{T}$ has strong repetitive pattern, however,
 
 ## New Model
 
-So far most of the previous works take the input digital image as the direct addition of several digital images. When implementing the primary model $\mathbf{Y} = \mathbf{T} + \mathbf{R}$, for example, "$+$" is used as the pixel-wise addition. 
+So far most of the previous works take the input digital image as the direct addition of several digital images. When implementing the primary model $\mathbf{Y} = \mathbf{T} + \mathbf{R}$, for example, "+" is used as the pixel-wise addition. 
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./images/ghost.png" width="400">
@@ -119,22 +119,24 @@ where $\delta \in (0,1)$ indicates the opacity of the transmission layer $\mathb
 
 
 ## Regularization Term
-\begin{figure}[H]
-\begin{minipage}{0.33\textwidth}
-  \centering
-  \includegraphics[height=4cm]{figures/book.jpg}
-\end{minipage}\hfill
-\begin{minipage}{0.33\textwidth}
-  \centering
-  \includegraphics[height=4cm]{figures/initT_d_book.jpg}
-\end{minipage}\hfill
-\begin{minipage}{0.33\textwidth}
-  \centering
-  \includegraphics[height=4cm]{figures/initR_d_book.jpg}
-\end{minipage}
-\caption{The image on the left side is the input image, we combine the new model $\mathbf{Y} = 0.3\mathbf{T} + 0.7(\mathbf{R} \otimes \mathbf{k})$  with the original methods to get the recovered transmission layer $\mathbf{T}$ in the middle and the recovered reflection layer $\mathbf{R}$ on the right.}
-\label{fig:corr}
-\end{figure}
-As shown in Figure \ref{fig:corr}, we notice that sometimes the original algorithm could successfully recover the reflection layer $\mathbf{R}$, but the transmission layer $\mathbf{T}$ is still left with the shadow of $\mathbf{R}$, which means the original regularization terms are good at detecting the two layers but still unable to achieve clean separation. We therefore propose a new regularization term to also minimize the correlation between $\mathbf{T}$ and $\mathbf{R}$.
+
+As shown in the following figure, The image on the left side is the input image, we combine the new model $\mathbf{Y} = 0.3\mathbf{T} + 0.7(\mathbf{R} \otimes \mathbf{k})$  with the original methods to get the recovered transmission layer $\T$ in the middle and the recovered reflection layer $\R$ on the right. We notice that sometimes the original algorithm could successfully recover the reflection layer $\mathbf{R}$, but the transmission layer $\mathbf{T}$ is still left with the shadow of $\mathbf{R}$, which means the original regularization terms are good at detecting the two layers but still unable to achieve clean separation. We therefore propose a new regularization term to also minimize the correlation between $\mathbf{T}$ and $\mathbf{R}$.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/book.jpg" width="300">
+  <img alt="The input image." src="./images/book.jpg">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/initT_d_book.jpg" width="300">
+  <img alt="we combine the new model with the original methods to get the recovered transmission layer" src="./images/initT_d_book.jpg">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/initR_d_book.jpg" width="300">
+  <img alt="we combine the new model with the original methods to get the recovered reflection layer$$" src="./images/initR_d_book.jpg">
+</picture>
+
+
 
 
