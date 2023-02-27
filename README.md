@@ -186,7 +186,7 @@ As for initialization, let $\mathbf{T} = \mathbf{Y}$, $\delta = 0.5$, set all th
 
 We test our new algorithm on both synthetic images and real images. In the following diagrams, the figure on the left is the input image, the figure in the middle is the recovered result of the original algorithm, and the figure on the right is the recovered result of our new algorithm. They both show that we obtain much better results when processing images with simple transmission layer. 
 
-
+On synthetic images:
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./images/shadowSyn.png" width="240">
   <img alt="The input image" src="./images/shadowSyn.png">
@@ -201,6 +201,7 @@ We test our new algorithm on both synthetic images and real images. In the follo
 </picture>
 
 
+On real images:
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./images/book.jpg" width="240">
   <img alt="The input image" src="./images/book.jpg">
