@@ -8,6 +8,7 @@ regularization term in the optimization problem, my algorithm achieved better pe
 both artificial images and some of the natural images.
 
 ``/code/origin`` contains the code of the original "ghosting model" I started with, credited to YiChang Shih (https://www.yichangshih.com/)
+
 ``/code/new`` constains the code of my own work based on the original model.
 
 
@@ -154,14 +155,13 @@ $$\text{attn}\_j = \sum\_i \beta_i\frac{\bar{\mathbf{p}}\_2(i) + \varepsilon}{\b
 
 where $\text{score}\_j = \frac{\sum(\mathbf{p}\_1^j \odot \mathbf{p}\_2^j)}{\|\mathbf{p}\_1^j\|\_F\|\mathbf{p}\_2^j\|\_F}$ encodes the similarity between the two patches around the $j$-th corner, and the weight $w_j$ is positively correlated with $\text{score}\_j$; $\bar{\mathbf{p}}\_1, \bar{\mathbf{p}}\_2$ are obtained by convolving $\mathbf{p}\_1,\mathbf{p}\_2$ with a 3 by 3 average filter and $\beta_i$ is the weight of the $i$-th estimation $\frac{\bar{\mathbf{p}}\_2 + \varepsilon}{\bar{\mathbf{p}}\_1 + \varepsilon}$. $\beta_i$ is designed to be larger if the $i$-th pixel is closer to the center of the patch, for that we want to reduce the influence of the background.
 
-Now we let $\mathbf{d}\_k$ be the maximum point of $\mathcal{R}\_{E\_{\mathbf{Y}}}(\mathbf{d})$ after eliminating those local maximum points whose corresponding $c_k$ is close to 1. We implement the new algorithm on Figure \ref{fig:cTest} and obtain an accurate estimation of the ghosting kernel, while the original algorithm takes the wrong $\mathbf{d}\_k$ from the pattern in $\mathbf{T}$.
+Now we let $\mathbf{d}\_k$ be the maximum point of $\mathcal{R}\_{E\_{\mathbf{Y}}}(\mathbf{d})$ after eliminating those local maximum points whose corresponding $c_k$ is close to 1. We implement the new algorithm on the following figure and obtain an accurate estimation of the ghosting kernel, while the original algorithm takes the wrong $\mathbf{d}\_k$ from the pattern in $\mathbf{T}$. The ground-truth ghosting kernel of this demo is $[dx,dy,c] = [10,-10,0.80]$, the pattern in the background gives $[dx,dy] = [-22,-22]$. The results of the original algorithm is $[dx,dy,c] = [21,22,0.68]$, the results of our proposed algorithm is $[dx,dy,c] = [10,-10,0.87]$.
 
-\begin{figure} 
-  \centering
-  \includegraphics[width = 0.4\textwidth]{figures/cTestdemo.jpg}
-  \caption{The ground-truth ghosting kernel of this demo is $[dx,dy,c] = [10,-10,0.80]$, the pattern in the background gives $[dx,dy] = [-22,-22]$. The results of the original algorithm is $[dx,dy,c] = [21,22,0.68]$, the results of our proposed algorithm is $[dx,dy,c] = [10,-10,0.87]$.}
-  \label{fig:cTest}
-\end{figure}
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/cTestdemo.jpg" width="300">
+  <img alt="Implementation of our new algorithm" src="./images/cTestdemo.jpg">
+</picture>
 
 
 
@@ -184,68 +184,51 @@ Each subproblem is a standard $l_1$ minimization problem of the  form $\min_{\ma
 
 As for initialization, let $\mathbf{T} = \mathbf{Y}$, $\delta = 0.5$, set all the entries of $\mathbf{A}$ to be 0.5 and run the above algorithm 5 times to get the initial $\mathbf{T}$ and $\mathbf{R}$.
 
-We test our new algorithm on both synthetic images and real images, Figure \ref{fig:shadowSyn} and Figure \ref{fig:book} shows that we obtain much better results when processing images with simple transmission layer. We also find that when dealing with more complicated $\mathbf{T}$, the new regularization term would sacrifice the details in the transmission layer in order to achieve "clear" separation of the two layers, as shown in Figure \ref{fig:lake}.
-
-\begin{figure}
-\begin{minipage}{0.3\textwidth}
-  \centering
-  \includegraphics[width=4.5cm]{figures/shadowSyn.png}
-  \caption*{the input image}
-\end{minipage}\hfill
-\begin{minipage}{0.3\textwidth}
-  \centering
-  \includegraphics[width=4.5cm]{figures/T_shadowSyn.png}
-  \caption*{the recovered $\mathbf{T}$ by \cite{removing}}
-\end{minipage}\hfill
-\begin{minipage}{0.3\textwidth}
-  \centering
-  \includegraphics[width=4.5cm]{figures/T_r_shadowSyn.png}
-  \caption*{the recovered $\mathbf{T}$ by ours}
-\end{minipage}
-\caption{reflection removal on synthetic image}
-\label{fig:shadowSyn}
-\end{figure}
+We test our new algorithm on both synthetic images and real images. In the following diagrams, the figure on the left is the input image, the figure in the middle is the recovered result of the original algorithm, and the figure on the right is the recovered result of our new algorithm. They both show that we obtain much better results when processing images with simple transmission layer. 
 
 
-\begin{figure}
-\begin{minipage}{0.3\textwidth}
-  \centering
-  \includegraphics[width=4.5cm]{figures/book.jpg}
-  \caption*{the input image}
-\end{minipage}\hfill
-\begin{minipage}{0.3\textwidth}
-  \centering
-  \includegraphics[width=4.5cm]{figures/T_book.jpg}
-  \caption*{the recovered $\mathbf{T}$ by \cite{removing}}
-\end{minipage}\hfill
-\begin{minipage}{0.3\textwidth}
-  \centering
-  \includegraphics[width=4.5cm]{figures/T_r_book.jpg}
-  \caption*{the recovered $\mathbf{T}$ by ours}
-\end{minipage}
-\caption{reflection removal on real image with simple background}
-\label{fig:book}
-\end{figure}
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/shadowSyn.png" width="240">
+  <img alt="The input image" src="./images/shadowSyn.png">
+</picture>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/T_shadowSyn.png" width="240">
+  <img alt="The recorvered transimission layer by the original algorithm" src="./images/T_shadowSyn.png">
+</picture>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/T_r_shadowSyn.png.png" width="240">
+  <img alt="The recorvered transimission layer by our new algorithm" src="./images/T_r_shadowSyn.png">
+</picture>
 
 
-\begin{figure}
-\begin{minipage}{0.3\textwidth}
-  \centering
-  \includegraphics[width=4.5cm]{figures/Lake.jpg}
-  \caption*{the input image}
-\end{minipage}\hfill
-\begin{minipage}{0.3\textwidth}
-  \centering
-  \includegraphics[width=4.5cm]{figures/lake_deghost.jpg}
-  \caption*{the recovered $\mathbf{T}$ by \cite{removing}}
-\end{minipage}\hfill
-\begin{minipage}{0.3\textwidth}
-  \centering
-  \includegraphics[width=4.5cm]{figures/T_r_Lake.jpg}
-  \caption*{the recovered $\mathbf{T}$ by ours}
-\end{minipage}
-\caption{reflection removal on real image with detailed background}
-\label{fig:lake}
-\end{figure}
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/book.jpg" width="240">
+  <img alt="The input image" src="./images/book.jpg">
+</picture>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/T_book.jpg" width="240">
+  <img alt="The recorvered transimission layer by the original algorithm" src="./images/T_book.jpg">
+</picture>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/T_r_book.jpg" width="240">
+  <img alt="The recorvered transimission layer by our new algorithm" src="./images/T_r_book.jpg.png">
+</picture>
+
+
+We also find that when dealing with more complicated $\mathbf{T}$, the new regularization term would sacrifice the details in the transmission layer in order to achieve "clear" separation of the two layers, as shown in the following diagram.
+
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/Lake.jpg" width="240">
+  <img alt="The input image" src="./images/Lake.jpg">
+</picture>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/lake_deghost.jpg" width="240">
+  <img alt="The recorvered transimission layer by the original algorithm" src="./images/lake_deghost.jpg">
+</picture>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./images/T_r_Lake.jpg" width="240">
+  <img alt="The recorvered transimission layer by our new algorithm" src="./images/T_r_Lake.jpg.png">
+</picture>
 
 
