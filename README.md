@@ -145,10 +145,11 @@ As shown in the following figure, The image on the left side is the input image,
 This chapter will describe how we implement the new ideas stated in Chapter \ref{cha:idea}, present and discuss the results of our experiments.
 
 ## Kernel Estimation
-We aim to improve the estimation of $c_k = \sum_jw_j\text{attn}\_j/\sum_jw_j$ so that the wrong $\d_k$ derived from the repetitive pattern in $\mathbf{T}$ would result in $c_k \approx 1$. We write $w\_j$ and $\text{attn}\_j$ as follows:
+We aim to improve the estimation of $c_k = \sum_jw_j\text{attn}\_j/\sum_jw_j$ so that the wrong $\mathbf{d}_k$ derived from the repetitive pattern in $\mathbf{T}$ would result in $c_k \approx 1$. We write $w\_j$ and $\text{attn}\_j$ as follows:
 
-$$ w_j &= \exp(10(\text{score}\_j-1))$$
-$$\text{attn}\_j &= \sum\_i \beta_i\frac{\bar{\mathbf{p}}\_2(i) + \varepsilon}{\bar{\mathbf{p}}\_1(i) + \varepsilon} / \sum_i \beta_i$$
+$$ w_j = \exp(10(\text{score}\_j-1))$$
+
+$$\text{attn}\_j = \sum\_i \beta_i\frac{\bar{\mathbf{p}}\_2(i) + \varepsilon}{\bar{\mathbf{p}}\_1(i) + \varepsilon} / \sum_i \beta_i$$
 
 
 where $\text{score}\_j = \frac{\sum(\mathbf{p}\_1^j \odot \mathbf{p}\_2^j)}{\|\mathbf{p}\_1^j\|\_F\|\mathbf{p}\_2^j\|\_F}$ encodes the similarity between the two patches around the $j$-th corner, and the weight $w_j$ is positively correlated with $\text{score}\_j$; $\bar{\mathbf{p}}\_1, \bar{\mathbf{p}}\_2$ are obtained by convolving $\mathbf{p}\_1,\mathbf{p}\_2$ with a 3 by 3 average filter and $\beta_i$ is the weight of the $i$-th estimation $\frac{\bar{\mathbf{p}}\_2 + \varepsilon}{\bar{\mathbf{p}}\_1 + \varepsilon}$. $\beta_i$ is designed to be larger if the $i$-th pixel is closer to the center of the patch, for that we want to reduce the influence of the background.
@@ -176,9 +177,9 @@ $$\min_{\mathbf{T},\mathbf{R}} \quad &\frac{1}{2}\|\mathbf{Y} - \delta\mathbf{T}
 Implementing alternating minimization, we split this problem into two subproblems as follows:
 
 
-$$\min_{\mathbf{R}} &\quad \frac{1}{2}\|\mathbf{Y} - \delta\mathbf{T} - (1-\delta)(\mathbf{R} \otimes \mathbf{k})\|\_F^2 + \beta\sum\_i\|(1-\mathbf{A})\odot(f_i\otimes\mathbf{R})\|\_1 + \gamma\|\frac{\mathbf{T}\odot\mathbf{R}}{\|\mathbf{T}\|_F\|\mathbf{R}\|\_F}\|_1$$
+$$\min_{\mathbf{R}} \quad \frac{1}{2}\|\mathbf{Y} - \delta\mathbf{T} - (1-\delta)(\mathbf{R} \otimes \mathbf{k})\|\_F^2 + \beta\sum\_i\|(1-\mathbf{A})\odot(f_i\otimes\mathbf{R})\|\_1 + \gamma\|\frac{\mathbf{T}\odot\mathbf{R}}{\|\mathbf{T}\|_F\|\mathbf{R}\|\_F}\|_1$$
 
-$$\min_{\mathbf{T}} &\quad \frac{1}{2}\|\mathbf{Y} - (1-\delta)(\mathbf{R} \otimes \mathbf{k}) - d\mathbf{T} \|\_F^2 + \lambda\sum_i\|\mathbf{A}\odot(f_i \otimes \mathbf{T})\|\_1 + \gamma\|\frac{\mathbf{R}\odot\mathbf{T}}{\|\mathbf{R}\|\_F\|\mathbf{T}\|\_F}\|\_1$$
+$$\min_{\mathbf{T}} \quad \frac{1}{2}\|\mathbf{Y} - (1-\delta)(\mathbf{R} \otimes \mathbf{k}) - d\mathbf{T} \|\_F^2 + \lambda\sum_i\|\mathbf{A}\odot(f_i \otimes \mathbf{T})\|\_1 + \gamma\|\frac{\mathbf{R}\odot\mathbf{T}}{\|\mathbf{R}\|\_F\|\mathbf{T}\|\_F}\|\_1$$
 
 Each subproblem is a standard $l_1$ minimization problem of the  form $\min_{\mathbf{u}} \|\mathbf{g} - \mathbf{B}\mathbf{u}\|\_2 + \|\mathbf{D}\mathbf{u}\|\_1$, which could be solved by the split-Bregman method \cite{split}.
 
