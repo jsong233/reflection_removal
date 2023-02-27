@@ -5,5 +5,5 @@ We aimed to remove the undesired reflections when taking pictures through transp
 regularization term in the optimization problem, my algorithm achieved better performances than the original one on
 both artificial images and some of the natural images.
 
-``/code/reflection removal`` contains the code of the original "ghosting model" I started with, credited to YiChang Shih (https://www.yichangshih.com/)
+``/code/origin`` contains the code of the original "ghosting model" I started with, credited to YiChang Shih (https://www.yichangshih.com/)
 
