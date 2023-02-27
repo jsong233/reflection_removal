@@ -212,10 +212,11 @@ We also find that when dealing with more complicated $\mathbf{T}$, the new regul
 
 Based on the ghosting model used by *Y. Shih* and *Y. Huang et al.*, we have made the following three improvements. 
 
-1. First of all, we polish the estimation of the ghosting kernel $\mathbf{k}$, so that the new algorithm could also process images with strong repetitive pattern in the transmission layer $\mathbf{T}$ and finally give a more accurate estimation of $\mathbf{k}$. 
+1. We polish the estimation of the ghosting kernel $\mathbf{k}$, so that the new algorithm could also process images with strong repetitive pattern in the transmission layer $\mathbf{T}$ and finally give a more accurate estimation of $\mathbf{k}$. 
 
-2. Secondly, we replace the original model $\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \mathbf{k}$ by $\mathbf{Y} = \delta\mathbf{T} + (1-\delta)(\mathbf{R} \otimes \mathbf{k})$, so that the new model is closer to the real physical model. 
+2. We replace the original model $\mathbf{Y} = \mathbf{T} + \mathbf{R} \otimes \mathbf{k}$ by $\mathbf{Y} = \delta\mathbf{T} + (1-\delta)(\mathbf{R} \otimes \mathbf{k})$, so that the new model is closer to the real physical model. 
 
-3. Thirdly, we propose a new regularization term to minimize the correlation between the two layers, so that the algorithm could achieve better performances in terms of "separation".
+3. We propose a new regularization term to minimize the correlation between the two layers, so that the algorithm could achieve better performances in terms of "separation".
+
 
 Although our algorithm achieve clearer separation than many previous methods, it cannot keep the details in $\mathbf{T}$ while removing the reflection, especially when the intensities of edges in $\mathbf{T},\mathbf{R}$ are similar. In other words, our methods have better results when the background transmission layer of the input image has fewer details. Although we could control how much details we want by changing the parameter $\gamma$, the algorithm could not find the right details to put in. In essence, besides ghosting effect, besides the difference in sharpness and the difference in repetitive pattern, more information is required to distinguish between $\mathbf{T}$ and $\mathbf{R}$. Some researchers have tried to learn these features using convolutional neural networks. For example, *Q. Fan et al.* (2017) learns how to predict the edge map of $\mathbf{T}$ and *R. Wan et al.* (2018) learns how to obtain the gradient information of $\mathbf{T}$. In future work, we hope to encode more significant information into our model and combine it with neural networks to learn those remaining implicit features.
