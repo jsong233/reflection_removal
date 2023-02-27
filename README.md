@@ -140,3 +140,107 @@ As shown in the following figure, The image on the left side is the input image,
 
 
 
+# Implementation
+
+This chapter will describe how we implement the new ideas stated in Chapter \ref{cha:idea}, present and discuss the results of our experiments.
+
+## Kernel Estimation
+We aim to improve the estimation of $c_k = \sum_jw_j\text{attn}_j/\sum_jw_j$ so that the wrong $\d_k$ derived from the repetitive pattern in $\T$ would result in $c_k \approx 1$. We write $w_j$ and $\text{attn}_j$ as follows:
+\begin{align*}
+w_j &= \exp(10(\text{score}_j-1))\\
+\text{attn}_j &= \sum_i \beta_i\frac{\bar{\p}_2(i) + \varepsilon}{\bar{\p}_1(i) + \varepsilon} / \sum_i \beta_i
+\end{align*}
+where $\text{score}_j = \frac{\sum(\p_1^j \odot \p_2^j)}{\|\p_1^j\|_F\|\p_2^j\|_F}$ encodes the similarity between the two patches around the $j^{\text{th}}$ corner, and the weight $w_j$ is positively correlated with $\text{score}_j$; $\bar{\p}_1, \bar{\p}_2$ are obtained by convolving $\p_1,\p_2$ with a 3 by 3 average filter and $\beta_i$ is the weight of the $i^{\text{th}}$ estimation $\frac{\bar{\p}_2 + \varepsilon}{\bar{\p}_1 + \varepsilon}$. $\beta_i$ is designed to be larger if the $i^{\text{th}}$ pixel is closer to the center of the patch, for that we want to reduce the influence of the background.
+
+Now we let $\d_k$ be the maximum point of $\mathcal{R}_{E_{\Y}}(\d)$ after eliminating those local maximum points whose corresponding $c_k$ is close to 1. We implement the new algorithm on Figure \ref{fig:cTest} and obtain an accurate estimation of the ghosting kernel, while the original algorithm takes the wrong $\d_k$ from the pattern in $\T$.
+
+\begin{figure} 
+  \centering
+  \includegraphics[width = 0.4\textwidth]{figures/cTestdemo.jpg}
+  \caption{The ground-truth ghosting kernel of this demo is $[dx,dy,c] = [10,-10,0.80]$, the pattern in the background gives $[dx,dy] = [-22,-22]$. The results of the original algorithm is $[dx,dy,c] = [21,22,0.68]$, the results of our proposed algorithm is $[dx,dy,c] = [10,-10,0.87]$.}
+  \label{fig:cTest}
+\end{figure}
+
+
+
+## Optimization
+
+We set $\delta = 0.3 \text{or} 0.5$, utilizing the new model and the new regularization term, our optimization problem becomes:
+\begin{align*}
+\min_{\T,\R} \quad &\frac{1}{2}\|\Y - \delta\T - (1-\delta)(\R \otimes \k)\|_F^2 + \lambda\sum_i\|\A\odot(f_i \otimes \T)\|_1 \\
+&+ \beta\sum_i\|(1-\A)\odot(f_i\otimes\R)\|_1 + \gamma\|\frac{\R\odot\T}{\|\R\|_F\|\T\|_F}\|_1
+\end{align*}
+Implementing alternating minimization, we split this problem into two subproblems as follows:
+\begin{align*}
+\min_{\R} &\quad \frac{1}{2}\|\Y - \delta\T - (1-\delta)(\R \otimes \k)\|_F^2 + \beta\sum_i\|(1-\A)\odot(f_i\otimes\R)\|_1 + \gamma\|\frac{\T\odot\R}{\|\T\|_F\|\R\|_F}\|_1 \\
+\min_{\T} &\quad \frac{1}{2}\|\Y - (1-\delta)(\R \otimes \k) - d\T \|_F^2 + \lambda\sum_i\|\A\odot(f_i \otimes \T)\|_1 + \gamma\|\frac{\R\odot\T}{\|\R\|_F\|\T\|_F}\|_1
+\end{align*} 
+Each subproblem is a standard $l_1$ minimization problem of the  form $\min_{\u} \|\g - \B\u\|_2 + \|\D\u\|_1$, which could be solved by the split-Bregman method \cite{split}.
+
+As for initialization, let $\T = \Y$, $\delta = 0.5$, set all the entries of $\A$ to be 0.5 and run the above algorithm 5 times to get the initial $\T$ and $\R$.
+
+We test our new algorithm on both synthetic images and real images, Figure \ref{fig:shadowSyn} and Figure \ref{fig:book} shows that we obtain much better results when processing images with simple transmission layer. We also find that when dealing with more complicated $\T$, the new regularization term would sacrifice the details in the transmission layer in order to achieve "clear" separation of the two layers, as shown in Figure \ref{fig:lake}.
+
+\begin{figure}
+\begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[width=4.5cm]{figures/shadowSyn.png}
+  \caption*{the input image}
+\end{minipage}\hfill
+\begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[width=4.5cm]{figures/T_shadowSyn.png}
+  \caption*{the recovered $\T$ by \cite{removing}}
+\end{minipage}\hfill
+\begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[width=4.5cm]{figures/T_r_shadowSyn.png}
+  \caption*{the recovered $\T$ by ours}
+\end{minipage}
+\caption{reflection removal on synthetic image}
+\label{fig:shadowSyn}
+\end{figure}
+
+
+\begin{figure}
+\begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[width=4.5cm]{figures/book.jpg}
+  \caption*{the input image}
+\end{minipage}\hfill
+\begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[width=4.5cm]{figures/T_book.jpg}
+  \caption*{the recovered $\T$ by \cite{removing}}
+\end{minipage}\hfill
+\begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[width=4.5cm]{figures/T_r_book.jpg}
+  \caption*{the recovered $\T$ by ours}
+\end{minipage}
+\caption{reflection removal on real image with simple background}
+\label{fig:book}
+\end{figure}
+
+
+\begin{figure}
+\begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[width=4.5cm]{figures/Lake.jpg}
+  \caption*{the input image}
+\end{minipage}\hfill
+\begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[width=4.5cm]{figures/lake_deghost.jpg}
+  \caption*{the recovered $\T$ by \cite{removing}}
+\end{minipage}\hfill
+\begin{minipage}{0.3\textwidth}
+  \centering
+  \includegraphics[width=4.5cm]{figures/T_r_Lake.jpg}
+  \caption*{the recovered $\T$ by ours}
+\end{minipage}
+\caption{reflection removal on real image with detailed background}
+\label{fig:lake}
+\end{figure}
+
+
